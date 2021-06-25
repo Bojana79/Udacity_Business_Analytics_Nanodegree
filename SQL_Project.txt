@@ -1,0 +1,64 @@
+/* Q1. What are the most popular music genres?
+*/
+
+SELECT
+  g.Name AS GenreType,
+  COUNT(*) AS NumberOfPurchases
+FROM Genre g
+JOIN Track t
+  ON g.GenreId = t.GenreId
+JOIN InvoiceLine il
+  ON t.TrackId = il.TrackId
+GROUP BY GenreType
+ORDER BY NumberOfPurchases DESC;
+
+/* Q2. What was the total sale of Metal Music over time?
+*/
+
+SELECT STRFTIME('%Y', i.InvoiceDate ) Year,
+        sum(il.Quantity*il.UnitPrice) "Total Sales"
+FROM Track t
+JOIN Genre g
+ON g.GenreId=t.GenreId
+JOIN InvoiceLine il
+ON il.TrackId=t.TrackId
+JOIN Invoice i
+ON i.InvoiceId=il.InvoiceId
+WHERE g.Name='Metal'
+GROUP BY Year;
+
+/* Q3. What are the 10 most productive groups in Metal music?
+*/
+
+SELECT ar.Name, COUNT(TrackId) AS Songs
+FROM Genre g
+JOIN Track t
+ON g.GenreID=t.GenreId
+JOIN Album al
+ON al.AlbumId=t.AlbumId
+JOIN Artist ar
+ON ar.ArtistId=al.ArtistId
+WHERE g.Name="Metal"
+GROUP BY ar.ArtistId
+ORDER BY Songs DESC
+LIMIT 10;
+
+/* Q4. How much money do customers spend on songs Metallica’s?
+*/
+
+SELECT a.Name, SUM(il.Quantity * il.UnitPrice)   AS AmountSpent,
+               c.CustomerId
+FROM Artist a
+JOIN Album al
+    ON a.ArtistId = al.ArtistId
+JOIN Track t
+    ON t.AlbumId = al.AlbumId
+JOIN InvoiceLine il
+    ON t.TrackId = il.Trackid
+JOIN Invoice i
+    ON il.InvoiceId = i.InvoiceId
+JOIN Customer c
+    ON c.CustomerId = i.CustomerId
+WHERE a.Name = 'Metallica'
+GROUP BY c.CustomerId
+ORDER BY AmountSpent DESC;
